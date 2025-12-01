@@ -1,0 +1,25 @@
+# Render manifest for elearning_platform
+# See https://render.com/docs/deploy-manifest for schema details
+
+services:
+  - type: web
+    name: elearning-platform
+    env: docker
+    branch: main
+    plan: free
+    # Path to Dockerfile in repo (relative)
+    dockerfilePath: Dockerfile
+    # Render will set PORT at runtime; the Dockerfile uses $PORT
+    # Do NOT put secrets here. Use Render Dashboard or the Secrets section.
+    envVars:
+      - key: DB_HOST
+        value: ""
+      - key: DB_USER
+        value: ""
+      - key: DB_PASS
+        value: ""
+      - key: DB_NAME
+        value: "elearning_platform"
+    # Health check: optional
+    healthCheckPath: /api/test_db.php
+    healthCheckGracePeriod: 60

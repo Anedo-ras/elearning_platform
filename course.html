@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Learn programming for free - Course page">
+    <meta name="theme-color" content="#4F46E5">
+    <title>Course - EduCode</title>
+    
+    <!-- Font Awesome Icons (Free CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts (Optional - Better Typography) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Override font if Google Fonts loaded */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Enhanced responsive course layout */
+        .course-header h1 {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Responsive video container */
+        .video-responsive {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .video-responsive iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Better button icons */
+        .btn-icon-left {
+            margin-right: 0.5rem;
+        }
+        
+        /* Mobile-friendly quiz */
+        @media (max-width: 768px) {
+            .quiz-question {
+                font-size: 0.95rem;
+            }
+            
+            .quiz-question label {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .quiz-question input[type="radio"] {
+                transform: scale(1.2);
+                margin-right: 0.5rem;
+            }
+        }
+        
+        /* Mobile lesson sidebar toggle */
+        .sidebar-toggle {
+            display: none;
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .course-sidebar.mobile-hidden {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">📚 EduCode</div>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <button onclick="logout()" class="btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="course-container">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="sidebar-toggle" onclick="toggleMobileSidebar()">
+            <i class="fas fa-bars"></i> Course Lessons
+        </button>
+        
+        <aside class="course-sidebar" id="courseSidebar">
+            <h3>📚 Course Lessons</h3>
+            <div id="lessonsList" class="lessons-list"></div>
+        </aside>
+
+        <main class="course-main">
+            <div class="course-header">
+                <h1 id="courseTitle"></h1>
+                <div id="courseProgress" class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div id="lessonContent" class="lesson-content"></div>
+
+            <div class="lesson-actions">
+                <button id="markCompleteBtn" onclick="markLessonComplete()" class="btn-primary">
+                    <i class="fas fa-check btn-icon-left"></i> Mark as Complete
+                </button>
+                <button id="nextLessonBtn" onclick="loadNextLesson()" class="btn-secondary">
+                    Next Lesson <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="video-section">
+                <h3><i class="fas fa-video"></i> Video Tutorial</h3>
+                <div class="video-responsive">
+                    <div id="videoEmbed"></div>
+                </div>
+            </div>
+
+            <div class="quiz-section">
+                <h3><i class="fas fa-clipboard-question"></i> Test Your Knowledge</h3>
+                <div id="quizContainer"></div>
+                <button id="submitQuizBtn" onclick="submitQuiz()" class="btn-primary hidden">
+                    <i class="fas fa-paper-plane btn-icon-left"></i> Submit Quiz
+                </button>
+                <div id="quizResults" class="quiz-results hidden"></div>
+            </div>
+
+            <div class="cheatsheet-section">
+                <h3><i class="fas fa-download"></i> Download Cheat Sheet</h3>
+                <button onclick="downloadCheatSheet()" class="btn-secondary">
+                    <i class="fas fa-file-pdf btn-icon-left"></i> Download PDF
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let currentCourse = null;
+        let currentLesson = null;
+        let lessons = [];
+        let quizQuestions = [];
+
+        window.onload = async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseSlug = urlParams.get('course');
+            
+            if (!courseSlug) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            await loadCourse(courseSlug);
+        };
+
+        async function loadCourse(slug) {
+            try {
+                const userId = localStorage.getItem('user_id');
+                const response = await fetch(`api/get_course_detail.php?slug=${slug}&user_id=${userId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentCourse = data.course;
+                    lessons = data.lessons;
+                    quizQuestions = data.quiz;
+
+                    document.getElementById('courseTitle').textContent = currentCourse.title;
+                    renderLessonsList();
+                    
+                    if (lessons.length > 0) {
+                        loadLesson(0);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading course:', error);
+            }
+        }
+
+        function renderLessonsList() {
+            const listDiv = document.getElementById('lessonsList');
+            listDiv.innerHTML = lessons.map((lesson, index) => `
+                <div class="lesson-item ${lesson.completed ? 'completed' : ''}" onclick="loadLesson(${index})">
+                    <span class="lesson-number">${index + 1}</span>
+                    <span class="lesson-title">${lesson.title}</span>
+                    ${lesson.completed ? '<span class="check-mark">✓</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function loadLesson(index) {
+            currentLesson = index;
+            const lesson = lessons[index];
+            
+            document.getElementById('lessonContent').innerHTML = lesson.content;
+            
+            // Responsive video embed
+            if (lesson.video_link) {
+                const videoId = extractYouTubeId(lesson.video_link);
+                document.getElementById('videoEmbed').innerHTML = `
+                    <iframe width="100%" height="100%" 
+                        src="https://www.youtube.com/embed/${videoId}" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+            } else {
+                document.getElementById('videoEmbed').innerHTML = '<p>No video available for this lesson.</p>';
+            }
+
+            if (lesson.completed) {
+                document.getElementById('markCompleteBtn').innerHTML = '<i class="fas fa-check btn-icon-left"></i> Completed';
+                document.getElementById('markCompleteBtn').disabled = true;
+            } else {
+                document.getElementById('markCompleteBtn').innerHTML = '<i class="fas fa-check btn-icon-left"></i> Mark as Complete';
+                document.getElementById('markCompleteBtn').disabled = false;
+            }
+
+            if (index === 0 && quizQuestions.length > 0) {
+                loadQuiz();
+            }
+
+            updateProgress();
+            
+            // Close mobile sidebar after selecting lesson
+            if (window.innerWidth <= 1024) {
+                document.getElementById('courseSidebar').classList.add('mobile-hidden');
+            }
+        }
+
+        function extractYouTubeId(url) {
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&\n?]+)/);
+            return match ? match[1] : '';
+        }
+
+        async function markLessonComplete() {
+            const userId = localStorage.getItem('user_id');
+            const lesson = lessons[currentLesson];
+
+            try {
+                const response = await fetch('api/update_progress.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: userId,
+                        course_id: currentCourse.id,
+                        lesson_id: lesson.id
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    lessons[currentLesson].completed = true;
+                    renderLessonsList();
+                    updateProgress();
+                    await updateStreak();
+                    showNotification('Lesson completed! 🎉');
+                    document.getElementById('markCompleteBtn').textContent = '✓ Completed';
+                    document.getElementById('markCompleteBtn').disabled = true;
+                }
+            } catch (error) {
+                console.error('Error marking lesson complete:', error);
+            }
+        }
+
+        function loadNextLesson() {
+            if (currentLesson < lessons.length - 1) {
+                loadLesson(currentLesson + 1);
+            }
+        }
+
+        function updateProgress() {
+            const completed = lessons.filter(l => l.completed).length;
+            const total = lessons.length;
+            const percentage = (completed / total) * 100;
+            
+            document.querySelector('.progress-bar').style.width = percentage + '%';
+        }
+
+        function loadQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = quizQuestions.map((q, index) => `
+                <div class="quiz-question">
+                    <p><strong>Q${index + 1}:</strong> ${q.question}</p>
+                    <label><input type="radio" name="q${q.id}" value="A"> ${q.option_a}</label>
+                    <label><input type="radio" name="q${q.id}" value="B"> ${q.option_b}</label>
+                    <label><input type="radio" name="q${q.id}" value="C"> ${q.option_c}</label>
+                    <label><input type="radio" name="q${q.id}" value="D"> ${q.option_d}</label>
+                </div>
+            `).join('');
+            
+            document.getElementById('submitQuizBtn').classList.remove('hidden');
+        }
+
+        async function submitQuiz() {
+            const answers = {};
+            let score = 0;
+
+            quizQuestions.forEach(q => {
+                const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+                if (selected) {
+                    answers[q.id] = selected.value;
+                    if (selected.value === q.correct_answer) {
+                        score++;
+                    }
+                }
+            });
+
+            const userId = localStorage.getItem('user_id');
+            
+            try {
+                await fetch('api/submit_quiz.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: userId,
+                        course_id: currentCourse.id,
+                        score: score,
+                        total: quizQuestions.length
+                    })
+                });
+
+                const percentage = (score / quizQuestions.length) * 100;
+                document.getElementById('quizResults').innerHTML = `
+                    <h4>Quiz Results</h4>
+                    <p>You scored ${score} out of ${quizQuestions.length} (${percentage.toFixed(0)}%)</p>
+                    ${percentage === 100 ? '<p>🎉 Perfect score! You earned the Quiz Master badge!</p>' : ''}
+                `;
+                document.getElementById('quizResults').classList.remove('hidden');
+                document.getElementById('submitQuizBtn').classList.add('hidden');
+            } catch (error) {
+                console.error('Error submitting quiz:', error);
+            }
+        }
+
+        function downloadCheatSheet() {
+            showNotification('Cheat sheet download started!');
+            window.open(`api/download_cheatsheet.php?course=${currentCourse.slug}`, '_blank');
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('courseSidebar');
+            sidebar.classList.toggle('mobile-hidden');
+        }
+    </script>
+</body>
+</html>

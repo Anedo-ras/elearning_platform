@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#4F46E5">
+    <title>Dashboard - EduCode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">📚 EduCode</div>
+            <div class="nav-links">
+                <span id="userGreeting"></span>
+                <button onclick="toggleDarkMode()" class="btn-icon">🌙</button>
+                <button onclick="logout()" class="btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>🔥 Your Streak</h3>
+                <div id="streakDisplay" class="streak-display">
+                    <div class="streak-number">0</div>
+                    <div class="streak-text">days</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🏆 Your Badges</h3>
+                <div id="badgesDisplay" class="badges-container"></div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>💡 Today's Quote</h3>
+                <div id="quoteDisplay" class="quote-display"></div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📊 Leaderboard</h3>
+                <div id="leaderboardDisplay" class="leaderboard"></div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>Your Learning Dashboard</h1>
+                <p>Continue your coding journey</p>
+            </div>
+
+            <div id="coursesGrid" class="courses-grid-dashboard"></div>
+        </main>
+    </div>
+
+    <div id="chatbotButton" class="chatbot-button" onclick="toggleChatbot()">💬</div>
+    <div id="chatbotWindow" class="chatbot-window hidden">
+        <div class="chatbot-header">
+            <h3>🤖 AI Learning Assistant</h3>
+            <button onclick="toggleChatbot()">✕</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Ask me anything...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/chatbot.js"></script>
+    <script src="js/streak.js"></script>
+</body>
+</html>

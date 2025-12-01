@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#4F46E5">
+    <title>Admin Panel - EduCode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">📚 EduCode Admin</div>
+            <div class="nav-links">
+                <button onclick="logout()" class="btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="admin-menu">
+                <div class="menu-item active" onclick="showSection('stats')">📊 Statistics</div>
+                <div class="menu-item" onclick="showSection('users')">👥 Users</div>
+                <div class="menu-item" onclick="showSection('courses')">📚 Courses</div>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <div id="statsSection" class="admin-section">
+                <h2>Platform Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCourses">0</div>
+                        <div class="stat-label">Total Courses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalLessons">0</div>
+                        <div class="stat-label">Total Lessons</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeToday">0</div>
+                        <div class="stat-label">Active Today</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="usersSection" class="admin-section hidden">
+                <h2>User Management</h2>
+                <div id="usersTable"></div>
+            </div>
+
+            <div id="coursesSection" class="admin-section hidden">
+                <h2>Course Management</h2>
+                <button onclick="showAddCourseModal()" class="btn-primary">+ Add New Course</button>
+                <div id="coursesTable"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="addCourseModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Add New Course</h3>
+            <div class="form-group">
+                <label>Course Title</label>
+                <input type="text" id="courseTitle">
+            </div>
+            <div class="form-group">
+                <label>Slug</label>
+                <input type="text" id="courseSlug">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="courseDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>YouTube Link</label>
+                <input type="text" id="courseYouTube">
+            </div>
+            <div class="form-group">
+                <label>Icon</label>
+                <input type="text" id="courseIcon" placeholder="e.g., 🌐">
+            </div>
+            <div class="modal-actions">
+                <button onclick="saveCourse()" class="btn-primary">Save</button>
+                <button onclick="closeModal()" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+/.env
+/.env.local
+/api/debug.log
+/api/config.php
+node_modules/
+vendor/
+.DS_Store
+.vscode/
+/.idea/
+/.ssh/
+.env.*# Node modules (if any)
+node_modules/
+
+# PHP vendor dir
+vendor/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+
+# Log files
+*.log
+
+# Environment and config
+
+
+# Composer
+composer.lock
+
+# XAMPP runtime (don't include local build artifacts)
+/tmp/
+
+# Ignore database export files
+*.sql
+
+# Ignore sensitive files
+*.key
+*.pem
